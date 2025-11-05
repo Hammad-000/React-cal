@@ -1,77 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import './Calculator.css';  // Ensure the CSS file is in place
+import './Calculator.css';
 
 const Calculator = () => {
   const [input, setInput] = useState("");
 
-  // Function to handle button clicks
   const handleClick = (value) => {
-    setInput((prevInput) => prevInput + value);
-  };
+  const operators = ['+', '-', '*', '/', '%'];
+  
+  // Prevent consecutive operators (including %)
+  if (operators.includes(value) && operators.includes(input[input.length - 1])) {
+    return;
+  }
 
-  // Function to clear the input
+  setInput((prevInput) => prevInput + value);
+};
+
+
   const handleClear = () => {
     setInput("");
   };
 
-  // Function to evaluate the expression
-const handleEvaluate = () => {
-  if (input.trim() === "") {
-    setInput("Error");
-    return;
-  }
-
-  try {
-    // Validate the input with regex to ensure only valid characters are used
-    const validInputRegex = /^[0-9+\-*/.()]+$/;
-    if (!validInputRegex.test(input)) {
-      throw new Error("Invalid characters in expression");
+  const handleEvaluate = () => {
+    if (input.trim() === "") {
+      setInput("Error");
+      return;
     }
 
-    // Evaluate the expression, but use a safer method (instead of eval)
-    const result = Function('return ' + input)(); // Safer alternative to eval
+    try {
+      
+      const percentageRegex = /(\d+)(%)$/g;
+      let modifiedInput = input.replace(percentageRegex, (match, number) => {
+      
+        return `+${(parseFloat(number) / 100) * parseFloat(number)}`;
+      });
 
-    if (isNaN(result) || !isFinite(result)) {
-      throw new Error("Invalid result");
+      const validInputRegex = /^[0-9+\-*/.()%]+$/;  
+      if (!validInputRegex.test(modifiedInput)) {
+        throw new Error("Invalid characters in expression");
+      }
+
+      
+      const result = Function('return ' + modifiedInput)(); 
+
+      if (isNaN(result) || !isFinite(result)) {
+        throw new Error("Invalid result");
+      }
+
+      setInput(result.toString());
+    } catch {
+      setInput("Error");
     }
+  };
 
-    setInput(result.toString());
-  } catch {
-    setInput("Error");
-  }
-};
-
-
-  // Keyboard input handling
   const handleKeyPress = (event) => {
     const key = event.key;
 
     if (key >= '0' && key <= '9') {
-      handleClick(key); // Handle numbers
+      handleClick(key);
     } else if (key === '.') {
-      handleClick('.'); // Handle decimal
+      handleClick('.');
     } else if (key === '+') {
-      handleClick('+'); // Handle addition
+      handleClick('+');
     } else if (key === '-') {
-      handleClick('-'); // Handle subtraction
+      handleClick('-');
     } else if (key === '*') {
-      handleClick('*'); // Handle multiplication
+      handleClick('*');
     } else if (key === '/') {
-      handleClick('/'); // Handle division
+      handleClick('/');
+    } else if (key === '%') {
+      handleClick('%');
     } else if (key === 'Enter') {
-      handleEvaluate(); // Handle evaluate (equals)
-    } else if (key === 'Backspace') {
-      setInput((prevInput) => prevInput.slice(0, -1)); // Handle backspace
+      handleEvaluate();
+    } else if (key === 'Backspace' || key === 'ArrowLeft') {
+      setInput((prevInput) => prevInput.slice(0, -1));
     } else if (key === 'Escape') {
-      handleClear(); // Handle clear (C)
+      handleClear();
     }
   };
 
-  // Adding event listener for keyboard input when the component mounts
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
 
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
@@ -83,31 +92,30 @@ const handleEvaluate = () => {
         <input type="text" value={input} readOnly />
       </div>
       <div className="buttons">
-
         <button onClick={handleClear} className="clear">Ｃ</button>
-        <button onClick={() => handleClick("*")} className="operator">*</button>
-        <button onClick={() => handleClick("/")} className="operator">/</button>
+        <button onClick={() => handleClick("%")} className="operator">%</button>
+        <button onClick={() => setInput((prevInput) => prevInput.slice(0, -1))}>←</button>
         <button onClick={handleEvaluate}>=</button>
-        
+
+        <button onClick={() => handleClick("*")} className="operator">*</button>
         <button onClick={() => handleClick("7")}>7</button>
         <button onClick={() => handleClick("8")}>8</button>
         <button onClick={() => handleClick("9")}>9</button>
-        <button onClick={() => handleClick("+")} className="operator">+</button>
+        <button onClick={() => handleClick("/")} className="operator">/</button>
 
         <button onClick={() => handleClick("4")}>4</button>
         <button onClick={() => handleClick("5")}>5</button>
         <button onClick={() => handleClick("6")}>6</button>
-
-        <button onClick={() => handleClick("-")} className="operator">-</button>
+        <button onClick={() => handleClick("+")} className="operator">+</button>
 
         <button onClick={() => handleClick("1")}>1</button>
         <button onClick={() => handleClick("2")}>2</button>
         <button onClick={() => handleClick("3")}>3</button>
-        
+        <button onClick={() => handleClick("-")} className="operator">-</button>
+
         <button onClick={() => handleClick("0")} className="zero">0</button>
         <button onClick={() => handleClick(".")}>.</button>
         <button onClick={() => handleClick("00")}>00</button>
-
       </div>
     </div>
   );
