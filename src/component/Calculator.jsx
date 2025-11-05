@@ -1,20 +1,21 @@
+// src/components/Calculator.js
 import React, { useState, useEffect } from 'react';
+import Display from './Display';
+import ButtonPanel from './ButtonPanel';
 import './Calculator.css';
 
 const Calculator = () => {
   const [input, setInput] = useState("");
 
   const handleClick = (value) => {
-  const operators = ['+', '-', '*', '/', '%'];
+    const operators = ['+', '-', '*', '/', '%'];
   
-  // Prevent consecutive operators (including %)
-  if (operators.includes(value) && operators.includes(input[input.length - 1])) {
-    return;
-  }
-
-  setInput((prevInput) => prevInput + value);
-};
-
+    // Prevent consecutive operators (including %)
+    if (operators.includes(value) && operators.includes(input[input.length - 1])) {
+      return;
+    }
+    setInput((prevInput) => prevInput + value);
+  };
 
   const handleClear = () => {
     setInput("");
@@ -27,10 +28,8 @@ const Calculator = () => {
     }
 
     try {
-      
       const percentageRegex = /(\d+)(%)$/g;
       let modifiedInput = input.replace(percentageRegex, (match, number) => {
-      
         return `+${(parseFloat(number) / 100) * parseFloat(number)}`;
       });
 
@@ -39,7 +38,6 @@ const Calculator = () => {
         throw new Error("Invalid characters in expression");
       }
 
-      
       const result = Function('return ' + modifiedInput)(); 
 
       if (isNaN(result) || !isFinite(result)) {
@@ -50,6 +48,10 @@ const Calculator = () => {
     } catch {
       setInput("Error");
     }
+  };
+
+  const handleBackspace = () => {
+    setInput((prevInput) => prevInput.slice(0, -1));
   };
 
   const handleKeyPress = (event) => {
@@ -72,7 +74,7 @@ const Calculator = () => {
     } else if (key === 'Enter') {
       handleEvaluate();
     } else if (key === 'Backspace' || key === 'ArrowLeft') {
-      setInput((prevInput) => prevInput.slice(0, -1));
+      handleBackspace();
     } else if (key === 'Escape') {
       handleClear();
     }
@@ -88,35 +90,13 @@ const Calculator = () => {
 
   return (
     <div className="calculator">
-      <div className="display">
-        <input type="text" value={input} readOnly />
-      </div>
-      <div className="buttons">
-        <button onClick={handleClear} className="clear">Ｃ</button>
-        <button onClick={() => handleClick("%")} className="operator">%</button>
-        <button onClick={() => setInput((prevInput) => prevInput.slice(0, -1))}>←</button>
-        <button onClick={handleEvaluate}>=</button>
-
-        <button onClick={() => handleClick("*")} className="operator">*</button>
-        <button onClick={() => handleClick("7")}>7</button>
-        <button onClick={() => handleClick("8")}>8</button>
-        <button onClick={() => handleClick("9")}>9</button>
-        <button onClick={() => handleClick("/")} className="operator">/</button>
-
-        <button onClick={() => handleClick("4")}>4</button>
-        <button onClick={() => handleClick("5")}>5</button>
-        <button onClick={() => handleClick("6")}>6</button>
-        <button onClick={() => handleClick("+")} className="operator">+</button>
-
-        <button onClick={() => handleClick("1")}>1</button>
-        <button onClick={() => handleClick("2")}>2</button>
-        <button onClick={() => handleClick("3")}>3</button>
-        <button onClick={() => handleClick("-")} className="operator">-</button>
-
-        <button onClick={() => handleClick("0")} className="zero">0</button>
-        <button onClick={() => handleClick(".")}>.</button>
-        <button onClick={() => handleClick("00")}>00</button>
-      </div>
+      <Display value={input} />
+      <ButtonPanel
+        onClick={handleClick}
+        handleEvaluate={handleEvaluate}
+        handleClear={handleClear}
+        handleBackspace={handleBackspace}
+      />
     </div>
   );
 };

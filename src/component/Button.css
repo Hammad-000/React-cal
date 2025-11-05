@@ -1,0 +1,27 @@
+/* src/components/Button.css */
+button {
+  padding: 20px;
+  font-size: 1.5rem;
+  margin: 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #e0e0e0;
+}
+
+button:active {
+  background-color: #d4d4d4;
+}
+
+button.zero {
+  width: 150px;
+}
+
+button.operator {
+  background-color: #f0ad4e;
+}

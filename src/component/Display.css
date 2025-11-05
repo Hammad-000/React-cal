@@ -1,0 +1,13 @@
+
+.display {
+  text-align: right;
+  padding: 20px;
+}
+
+input {
+  width: 100%;
+  font-size: 2rem;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
